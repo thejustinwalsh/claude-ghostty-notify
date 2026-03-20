@@ -1,0 +1,10 @@
+{
+  "name": "ghostty-notify",
+  "displayName": "Ghostty Notify",
+  "description": "Native macOS notifications for Claude Code that focus the correct Ghostty terminal tab when clicked. Shows project name, git branch, and last tool action in the notification body.",
+  "author": "tjw",
+  "license": "MIT",
+  "platforms": ["macos"],
+  "categories": ["notifications", "terminal"],
+  "keywords": ["ghostty", "macos", "notifications", "terminal"]
+}

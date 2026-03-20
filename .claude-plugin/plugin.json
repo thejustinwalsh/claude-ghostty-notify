@@ -1,0 +1,43 @@
+{
+  "name": "ghostty-notify",
+  "description": "Native macOS notifications for Claude Code with Ghostty tab focusing",
+  "version": "1.0.0",
+  "platforms": ["macos"],
+  "hooks": {
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash '${CLAUDE_PLUGIN_ROOT}/scripts/ghostty-notify.sh'",
+            "timeout": 30,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash '${CLAUDE_PLUGIN_ROOT}/scripts/ghostty-session-start.sh'",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash '${CLAUDE_PLUGIN_ROOT}/scripts/ghostty-dismiss.sh'",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      }
+    ]
+  }
+}
