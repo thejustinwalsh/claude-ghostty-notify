@@ -1,6 +1,6 @@
-# ghostty-notify
+# claude-ghostty-notify
 
-A Claude Code plugin that delivers native macOS notifications when Claude needs your attention, with smart Ghostty terminal tab focusing.
+A [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugin that delivers native macOS notifications when Claude needs your attention, with smart [Ghostty](https://ghostty.org) terminal tab focusing.
 
 ## What it does
 
@@ -12,8 +12,8 @@ A Claude Code plugin that delivers native macOS notifications when Claude needs 
 
 ### Notification types
 
-| Type | Subtitle shown |
-|------|---------------|
+| Type | Subtitle |
+|------|----------|
 | Permission prompt | "Permission Required" |
 | Idle / waiting | "Waiting for Input" |
 | Elicitation dialog | "Input Requested" |
@@ -33,21 +33,20 @@ A Claude Code plugin that delivers native macOS notifications when Claude needs 
 ### As a Claude Code plugin
 
 ```bash
-claude plugins add /path/to/ghostty-notify
+claude plugins add thejustinwalsh/claude-ghostty-notify
 ```
 
-Then run the build script:
+Then run the build script to compile the notification app:
 
 ```bash
-cd ~/.claude/plugins/cache/ghostty-notify/ghostty-notify/*/
-bash install.sh
+bash ~/.claude/plugins/cache/claude-ghostty-notify/claude-ghostty-notify/*/install.sh
 ```
 
 ### Manual install
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/ghostty-notify.git ~/Developer/ghostty-notify
-cd ~/Developer/ghostty-notify
+git clone https://github.com/thejustinwalsh/claude-ghostty-notify.git
+cd claude-ghostty-notify
 bash install.sh
 ```
 
@@ -56,7 +55,7 @@ Then add to your Claude Code settings (`~/.claude/settings.json`):
 ```json
 {
   "enabledPlugins": {
-    "ghostty-notify@YOUR_USERNAME": true
+    "claude-ghostty-notify@thejustinwalsh": true
   }
 }
 ```
@@ -66,7 +65,7 @@ Then add to your Claude Code settings (`~/.claude/settings.json`):
 Three hooks wire into Claude Code's lifecycle:
 
 1. **`SessionStart`** — captures the Ghostty terminal UUID for the session via AppleScript, saves it to `/tmp/claude-ghostty/<session_id>`
-2. **`Notification`** — on any notification event, waits 3s, checks if you're already focused on that tab, enriches the message with the last tool action from the transcript, then launches the `ClaudeNotify.app` with base64-encoded hook data
+2. **`Notification`** — on any notification event, waits 3s, checks if you're already focused on that tab, enriches the message with the last tool action from the transcript, then launches `ClaudeNotify.app` with base64-encoded hook data
 3. **`UserPromptSubmit`** — dismisses any pending notifications when you send a new message
 
 The Swift app (`ClaudeNotify.app`) runs as an `LSUIElement` (no dock icon), posts the notification, and handles click-to-focus via AppleScript.
@@ -86,8 +85,6 @@ scripts/
   ghostty-dismiss.sh   # Dismiss hook
   ghostty-session-start.sh  # Session start hook
 install.sh             # Build & setup script
-build/                 # Created by install.sh
-  ClaudeNotify.app/    # Compiled app bundle
 ```
 
 ## Troubleshooting
@@ -105,4 +102,4 @@ build/                 # Created by install.sh
 
 ## License
 
-MIT
+[Unlicense](LICENSE) — public domain
