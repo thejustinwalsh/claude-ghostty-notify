@@ -8,10 +8,20 @@ CONTENTS="$APP_DIR/Contents"
 MACOS="$CONTENTS/MacOS"
 RESOURCES="$CONTENTS/Resources"
 
-echo "==> Building ClaudeNotify.app..."
+AUTO=false
+if [ "${1:-}" = "--auto" ]; then
+    AUTO=true
+    # Skip if already built
+    [ -x "$MACOS/ClaudeNotify" ] && exit 0
+fi
+
+log() { $AUTO || echo "$@"; }
+
+log "==> Building ClaudeNotify.app..."
 
 # Check for Swift compiler
 if ! command -v swiftc &>/dev/null; then
+    $AUTO && exit 1
     echo "Error: swiftc not found. Install Xcode or Xcode Command Line Tools:"
     echo "  xcode-select --install"
     exit 1
@@ -29,14 +39,14 @@ swiftc "$SCRIPT_DIR/src/ClaudeNotify.swift" \
     -framework AppKit \
     -O
 
-echo "==> Compiled ClaudeNotify binary"
+log "==> Compiled ClaudeNotify binary"
 
 # Copy Info.plist
 cp "$SCRIPT_DIR/src/Info.plist" "$CONTENTS/Info.plist"
 
 # Ad-hoc codesign
 codesign --force --sign - "$APP_DIR"
-echo "==> Ad-hoc codesigned"
+log "==> Ad-hoc codesigned"
 
 # Copy Claude icon if available
 CLAUDE_ICON=""
@@ -52,28 +62,31 @@ done
 
 if [ -n "$CLAUDE_ICON" ]; then
     cp "$CLAUDE_ICON" "$RESOURCES/AppIcon.icns"
-    echo "==> Copied Claude icon from $CLAUDE_ICON"
+    log "==> Copied Claude icon from $CLAUDE_ICON"
 else
-    echo "    (Claude.app icon not found — notifications will use default icon)"
+    log "    (Claude.app icon not found — notifications will use default icon)"
 fi
 
 # Copy notification sound
 TINK_SRC="/System/Library/Sounds/Tink.aiff"
 if [ -f "$TINK_SRC" ]; then
     cp "$TINK_SRC" "$RESOURCES/Tink.aiff"
-    echo "==> Copied Tink.aiff notification sound"
+    log "==> Copied Tink.aiff notification sound"
 else
-    echo "    (Tink.aiff not found — notifications will use default sound)"
+    log "    (Tink.aiff not found — notifications will use default sound)"
 fi
 
 # Make scripts executable
 chmod +x "$SCRIPT_DIR/scripts/"*.sh
 
-echo ""
-echo "==> Opening ClaudeNotify.app to request notification permissions..."
-echo "    Please click 'Allow' when prompted."
-open -a "$APP_DIR"
-
-echo ""
-echo "Done! The ghostty-notify plugin is ready."
-echo "Enable it in Claude Code with: claude plugins enable ghostty-notify"
+if $AUTO; then
+    # First auto-build: open app to trigger notification permission prompt
+    open -a "$APP_DIR" &
+else
+    echo ""
+    echo "==> Opening ClaudeNotify.app to request notification permissions..."
+    echo "    Please click 'Allow' when prompted."
+    open -a "$APP_DIR"
+    echo ""
+    echo "Done! The ghostty-notify plugin is ready."
+fi

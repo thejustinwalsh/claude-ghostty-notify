@@ -30,41 +30,23 @@ A [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugin that deli
 
 ## Install
 
-### As a Claude Code plugin
-
 ```bash
 claude plugins add thejustinwalsh/claude-ghostty-notify
 ```
 
-Then run the build script to compile the notification app:
+The app compiles automatically on your first Claude Code session after install. You'll see a one-time macOS notification permission prompt — click **Allow**.
+
+To rebuild manually (e.g. after updating):
 
 ```bash
 bash ~/.claude/plugins/cache/claude-ghostty-notify/claude-ghostty-notify/*/install.sh
-```
-
-### Manual install
-
-```bash
-git clone https://github.com/thejustinwalsh/claude-ghostty-notify.git
-cd claude-ghostty-notify
-bash install.sh
-```
-
-Then add to your Claude Code settings (`~/.claude/settings.json`):
-
-```json
-{
-  "enabledPlugins": {
-    "claude-ghostty-notify@thejustinwalsh": true
-  }
-}
 ```
 
 ## How it works
 
 Three hooks wire into Claude Code's lifecycle:
 
-1. **`SessionStart`** — captures the Ghostty terminal UUID for the session via AppleScript, saves it to `/tmp/claude-ghostty/<session_id>`
+1. **`SessionStart`** — auto-builds `ClaudeNotify.app` on first run, then captures the Ghostty terminal UUID for the session via AppleScript, saves it to `/tmp/claude-ghostty/<session_id>`
 2. **`Notification`** — on any notification event, waits 3s, checks if you're already focused on that tab, enriches the message with the last tool action from the transcript, then launches `ClaudeNotify.app` with base64-encoded hook data
 3. **`UserPromptSubmit`** — dismisses any pending notifications when you send a new message
 

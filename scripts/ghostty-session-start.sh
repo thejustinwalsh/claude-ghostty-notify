@@ -7,6 +7,11 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/common.sh"
 
+# Auto-build ClaudeNotify.app on first session if needed
+if [ ! -x "$PLUGIN_ROOT/build/ClaudeNotify.app/Contents/MacOS/ClaudeNotify" ]; then
+    bash "$PLUGIN_ROOT/install.sh" --auto 2>/dev/null || true
+fi
+
 RAW=$(cat)
 SESSION_ID=$(echo "$RAW" | json_val "session_id")
 [ -n "$SESSION_ID" ] || exit 0
