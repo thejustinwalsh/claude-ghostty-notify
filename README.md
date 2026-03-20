@@ -30,9 +30,14 @@ A [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugin that deli
 
 ## Install
 
-```bash
-claude plugins add thejustinwalsh/claude-ghostty-notify
+In Claude Code, run these slash commands:
+
 ```
+/plugin marketplace add thejustinwalsh/claude-ghostty-notify
+/plugin install claude-ghostty-notify@thejustinwalsh-claude-ghostty-notify
+```
+
+Or run `/plugin` and use the **Discover** tab to find and install it interactively.
 
 The app compiles automatically on your first Claude Code session after install. You'll see a one-time macOS notification permission prompt — click **Allow**.
 
