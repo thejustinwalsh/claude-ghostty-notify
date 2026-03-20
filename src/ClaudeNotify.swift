@@ -30,9 +30,34 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
             return
         }
 
+        // Setup mode: request permissions and show welcome notification
+        if args.count <= 1 {
+            log("setup mode: requesting notification permissions")
+            let center = UNUserNotificationCenter.current()
+            center.delegate = self
+            center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+                guard granted else {
+                    log("permission denied: \(String(describing: error))")
+                    DispatchQueue.main.async { NSApp.terminate(nil) }
+                    return
+                }
+                let content = UNMutableNotificationContent()
+                content.title = "Ghostty Notify"
+                content.subtitle = "Plugin Installed"
+                content.body = "You'll be notified when Claude Code needs your attention. Click notifications to jump to the right Ghostty tab."
+                content.sound = UNNotificationSound(named: UNNotificationSoundName("Tink.aiff"))
+                let request = UNNotificationRequest(identifier: "claude-setup", content: content, trigger: nil)
+                center.add(request) { _ in
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                        NSApp.terminate(nil)
+                    }
+                }
+            }
+            return
+        }
+
         // Arg is base64-encoded JSON
-        guard args.count > 1,
-              let data = Data(base64Encoded: args[1]),
+        guard let data = Data(base64Encoded: args[1]),
               let input = try? JSONDecoder().decode(HookInput.self, from: data) else {
             log("failed to decode input")
             NSApp.terminate(nil)
