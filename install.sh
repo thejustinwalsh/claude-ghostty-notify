@@ -52,8 +52,10 @@ log "==> Ad-hoc codesigned"
 CLAUDE_ICON=""
 for icon_path in \
     "/Applications/Claude.app/Contents/Resources/AppIcon.icns" \
+    "/Applications/Claude.app/Contents/Resources/electron.icns" \
     "/Applications/Claude.app/Contents/Resources/icon.icns" \
-    "$HOME/Applications/Claude.app/Contents/Resources/AppIcon.icns"; do
+    "$HOME/Applications/Claude.app/Contents/Resources/AppIcon.icns" \
+    "$HOME/Applications/Claude.app/Contents/Resources/electron.icns"; do
     if [ -f "$icon_path" ]; then
         CLAUDE_ICON="$icon_path"
         break
@@ -80,8 +82,8 @@ fi
 chmod +x "$SCRIPT_DIR/scripts/"*.sh
 
 if $AUTO; then
-    # First auto-build: open app to trigger notification permission prompt
-    open -a "$APP_DIR" &
+    # Permission prompt will happen on first real notification
+    :
 else
     echo ""
     echo "==> Opening ClaudeNotify.app to request notification permissions..."
