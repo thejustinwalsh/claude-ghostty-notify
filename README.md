@@ -34,7 +34,7 @@ In Claude Code, run these slash commands:
 
 ```
 /plugin marketplace add thejustinwalsh/claude-ghostty-notify
-/plugin install claude-ghostty-notify@thejustinwalsh-claude-ghostty-notify
+/plugin install ghostty-notify@thejustinwalsh
 ```
 
 Or run `/plugin` and use the **Discover** tab to find and install it interactively.

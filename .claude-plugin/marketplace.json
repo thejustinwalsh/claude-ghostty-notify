@@ -1,5 +1,5 @@
 {
-  "name": "claude-ghostty-notify",
+  "name": "thejustinwalsh",
   "owner": {
     "name": "Justin Walsh"
   },
@@ -8,7 +8,7 @@
   },
   "plugins": [
     {
-      "name": "claude-ghostty-notify",
+      "name": "ghostty-notify",
       "source": "./",
       "description": "Native macOS notifications for Claude Code that focus the correct Ghostty terminal tab when clicked. Shows project name, git branch, and last tool action in the notification body.",
       "category": "notifications",
