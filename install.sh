@@ -11,8 +11,12 @@ RESOURCES="$CONTENTS/Resources"
 AUTO=false
 if [ "${1:-}" = "--auto" ]; then
     AUTO=true
-    # Skip if already built
-    [ -x "$MACOS/ClaudeNotify" ] && exit 0
+    # Skip if binary exists and is up-to-date with source files
+    if [ -x "$MACOS/ClaudeNotify" ]; then
+        for src in "$SCRIPT_DIR/src/ClaudeNotify.swift" "$SCRIPT_DIR/src/Info.plist" "$SCRIPT_DIR/install.sh"; do
+            [ "$src" -nt "$MACOS/ClaudeNotify" ] && break
+        done || exit 0
+    fi
 fi
 
 log() { $AUTO || echo "$@"; }

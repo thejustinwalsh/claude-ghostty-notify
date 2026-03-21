@@ -48,29 +48,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
             return
         }
 
-        // Setup mode: request permissions and show welcome notification
+        // No args — nothing to do (permissions are requested on first real notification)
         if args.count <= 1 {
-            log("setup mode: requesting notification permissions")
-            let center = UNUserNotificationCenter.current()
-            center.delegate = self
-            center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
-                guard granted else {
-                    log("permission denied: \(String(describing: error))")
-                    DispatchQueue.main.async { NSApp.terminate(nil) }
-                    return
-                }
-                let content = UNMutableNotificationContent()
-                content.title = "Ghostty Notify"
-                content.subtitle = "Plugin Installed"
-                content.body = "You'll be notified when Claude Code needs your attention. Click notifications to jump to the right Ghostty tab."
-                content.sound = UNNotificationSound(named: UNNotificationSoundName("Tink.aiff"))
-                let request = UNNotificationRequest(identifier: "claude-setup", content: content, trigger: nil)
-                center.add(request) { _ in
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                        NSApp.terminate(nil)
-                    }
-                }
-            }
+            log("launched with no args, exiting")
+            NSApp.terminate(nil)
             return
         }
 
