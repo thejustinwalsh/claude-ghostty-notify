@@ -19,13 +19,31 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     func applicationDidFinishLaunching(_ notification: Notification) {
         let args = CommandLine.arguments
 
-        // Dismiss mode: remove all delivered notifications
-        if args.count > 1 && args[1] == "dismiss" {
+        // Dismiss mode: remove delivered notifications for a specific session
+        if args.count > 1 && args[1].hasPrefix("dismiss") {
             let center = UNUserNotificationCenter.current()
-            center.removeAllDeliveredNotifications()
-            log("dismissed all notifications")
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                NSApp.terminate(nil)
+            let sessionId = args[1].contains(":") ? String(args[1].dropFirst("dismiss:".count)) : nil
+
+            if let sessionId = sessionId, !sessionId.isEmpty {
+                let prefix = "claude-\(sessionId)-"
+                center.getDeliveredNotifications { notifications in
+                    let ids = notifications
+                        .filter { $0.request.identifier.hasPrefix(prefix) }
+                        .map { $0.request.identifier }
+                    if !ids.isEmpty {
+                        center.removeDeliveredNotifications(withIdentifiers: ids)
+                    }
+                    log("dismissed \(ids.count) notifications for session \(sessionId)")
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        NSApp.terminate(nil)
+                    }
+                }
+            } else {
+                center.removeAllDeliveredNotifications()
+                log("dismissed all notifications")
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    NSApp.terminate(nil)
+                }
             }
             return
         }
