@@ -7,6 +7,9 @@ PLUGIN_ROOT="${PLUGIN_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 # Locate ClaudeNotify.app
 NOTIFY_APP="$PLUGIN_ROOT/build/ClaudeNotify.app"
 
+# SQLite database path (shared with ClaudeNotify.swift SessionStore)
+NOTIFY_DB="$HOME/Library/Application Support/com.claude.notify/store.db"
+
 # Find jq in PATH
 if command -v jq &>/dev/null; then
     _JQ="$(command -v jq)"
@@ -44,6 +47,28 @@ d[sys.argv[1]] = sys.argv[2]
 json.dump(d, sys.stdout)
 " "$field" "$value"
     fi
+}
+
+# ensure_db: create database directory and tables if needed, purge old entries
+ensure_db() {
+    local dir
+    dir="$(dirname "$NOTIFY_DB")"
+    [ -d "$dir" ] || mkdir -p "$dir"
+    sqlite3 "$NOTIFY_DB" "
+        PRAGMA journal_mode=WAL;
+        CREATE TABLE IF NOT EXISTS sessions (
+            session_id TEXT PRIMARY KEY,
+            terminal_uuid TEXT,
+            updated_at REAL DEFAULT (strftime('%s','now'))
+        );
+        CREATE TABLE IF NOT EXISTS notifications (
+            notif_id TEXT PRIMARY KEY,
+            session_id TEXT NOT NULL,
+            created_at REAL DEFAULT (strftime('%s','now'))
+        );
+        DELETE FROM sessions WHERE updated_at < strftime('%s','now') - 86400;
+        DELETE FROM notifications WHERE created_at < strftime('%s','now') - 86400;
+    " 2>/dev/null
 }
 
 # extract_last_tool: get last tool info from transcript for notification enrichment

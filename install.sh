@@ -41,16 +41,13 @@ swiftc "$SCRIPT_DIR/src/ClaudeNotify.swift" \
     -framework Foundation \
     -framework UserNotifications \
     -framework AppKit \
+    -lsqlite3 \
     -O
 
 log "==> Compiled ClaudeNotify binary"
 
 # Copy Info.plist
 cp "$SCRIPT_DIR/src/Info.plist" "$CONTENTS/Info.plist"
-
-# Ad-hoc codesign
-codesign --force --sign - "$APP_DIR"
-log "==> Ad-hoc codesigned"
 
 # Copy Claude icon if available
 CLAUDE_ICON=""
@@ -81,6 +78,11 @@ if [ -f "$TINK_SRC" ]; then
 else
     log "    (Tink.aiff not found — notifications will use default sound)"
 fi
+
+# Ad-hoc codesign (must happen AFTER all resources are copied)
+codesign --force --sign - "$APP_DIR"
+log "==> Ad-hoc codesigned"
+
 
 # Make scripts executable
 chmod +x "$SCRIPT_DIR/scripts/"*.sh

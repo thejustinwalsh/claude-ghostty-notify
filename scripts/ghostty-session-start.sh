@@ -26,6 +26,6 @@ end tell' 2>/dev/null || true)
 
 [ -n "$TID" ] || exit 0
 
-mkdir -p /tmp/claude-ghostty
-echo "$TID" > "/tmp/claude-ghostty/$SESSION_ID"
+ensure_db
+sqlite3 "$NOTIFY_DB" "INSERT OR REPLACE INTO sessions (session_id, terminal_uuid, updated_at) VALUES ('$SESSION_ID', '$TID', strftime('%s','now'));"
 exit 0

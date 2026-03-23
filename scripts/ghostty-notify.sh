@@ -7,6 +7,14 @@ source "$SCRIPT_DIR/common.sh"
 # Read hook JSON from stdin
 RAW=$(cat)
 
+# Only notify for actionable types (permission prompts, input dialogs)
+# Skip idle_prompt (fires on task complete — not actually waiting for input)
+NOTIF_TYPE=$(echo "$RAW" | json_val "notification_type")
+case "$NOTIF_TYPE" in
+    permission_prompt|elicitation_dialog) ;;
+    *) exit 0 ;;
+esac
+
 TRANSCRIPT=$(echo "$RAW" | json_val "transcript_path")
 
 # Count user messages before delay (to detect if user responded, not just Claude writing)
@@ -22,11 +30,9 @@ sleep 3
 SESSION_ID=$(echo "$RAW" | json_val "session_id")
 FRONTMOST=$(osascript -e 'tell application "System Events" to get name of first application process whose frontmost is true' 2>/dev/null || true)
 if [ "${FRONTMOST,,}" = "ghostty" ]; then
-    # Check by terminal UUID (exact match)
-    SAVED_TID=""
-    if [ -n "$SESSION_ID" ] && [ -f "/tmp/claude-ghostty/$SESSION_ID" ]; then
-        SAVED_TID=$(cat "/tmp/claude-ghostty/$SESSION_ID" 2>/dev/null || true)
-    fi
+    # Check by terminal UUID from SQLite store
+    ensure_db
+    SAVED_TID=$(sqlite3 "$NOTIFY_DB" "SELECT terminal_uuid FROM sessions WHERE session_id = '$SESSION_ID';" 2>/dev/null || true)
     if [ -n "$SAVED_TID" ]; then
         ACTIVE_TID=$(osascript -e '
             tell application "Ghostty"
