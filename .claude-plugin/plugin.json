@@ -1,7 +1,7 @@
 {
   "name": "ghostty-notify",
   "description": "Native macOS notifications for Claude Code with Ghostty tab focusing",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "platforms": ["macos"],
   "hooks": {
     "Notification": [
