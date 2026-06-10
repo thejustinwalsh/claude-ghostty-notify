@@ -9,7 +9,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash '${CLAUDE_PLUGIN_ROOT}/scripts/ghostty-notify.sh'",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/ghostty-notify.sh\"",
             "timeout": 30,
             "async": true
           }
@@ -21,7 +21,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash '${CLAUDE_PLUGIN_ROOT}/scripts/ghostty-session-start.sh'",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/ghostty-session-start.sh\"",
             "timeout": 5
           }
         ]
@@ -32,7 +32,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash '${CLAUDE_PLUGIN_ROOT}/scripts/ghostty-dismiss.sh'",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/ghostty-dismiss.sh\"",
             "timeout": 5,
             "async": true
           }
