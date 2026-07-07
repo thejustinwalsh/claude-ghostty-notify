@@ -76,8 +76,8 @@ ensure_db() {
 extract_last_tool() {
     local transcript="$1"
     if [ -n "$_JQ" ]; then
-        tail -20 "$transcript" | "$_JQ" -rs '
-            [.[] | select(.type == "assistant") | .content[]? | select(.type == "tool_use")] | last // empty |
+        tail -200 "$transcript" | "$_JQ" -rs '
+            [.[] | select(.type == "assistant") | (.message.content // .content)[]? | select(.type == "tool_use")] | last // empty |
             if .name == "Bash" then
                 "Bash: " + (.input.command // "" | split("\n") | first | .[0:200])
             elif .name == "Edit" then
@@ -93,7 +93,7 @@ extract_last_tool() {
             end
         ' 2>/dev/null || true
     else
-        tail -20 "$transcript" | python3 -c "
+        tail -200 "$transcript" | python3 -c "
 import sys, json
 
 lines = []
@@ -108,7 +108,8 @@ for line in sys.stdin:
 tools = []
 for entry in lines:
     if entry.get('type') == 'assistant':
-        for c in (entry.get('content') or []):
+        content = (entry.get('message') or {}).get('content') or entry.get('content') or []
+        for c in content:
             if isinstance(c, dict) and c.get('type') == 'tool_use':
                 tools.append(c)
 
