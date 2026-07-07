@@ -185,8 +185,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
 
         // No args — nothing to do (permissions are requested on first real notification)
         if args.count <= 1 {
-            log("launched with no args, exiting")
-            NSApp.terminate(nil)
+            // A bare launch usually means macOS relaunched us to deliver a
+            // click on a notification whose posting instance is gone (each new
+            // notification pkills the previous instance). Register the delegate
+            // and linger briefly so didReceive can handle the response; it
+            // carries sessionId/cwd in userInfo, so no argv payload is needed.
+            UNUserNotificationCenter.current().delegate = self
+            log("launched with no args, waiting for notification response")
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
+                NSApp.terminate(nil)
+            }
             return
         }
 
@@ -304,10 +312,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
 
         let script: String
         if !terminalUUID.isEmpty {
+            // Focus BEFORE activate: activating first restores Ghostty's
+            // most-recently-used window, and the subsequent focus does not
+            // force a cross-Space window raise. Focusing while the app is
+            // still in the background keys the target window, so activation
+            // brings it (and its Space) forward.
             script = """
             tell application "Ghostty"
-                activate
                 focus (first terminal whose id is "\(terminalUUID)")
+                delay 0.5
+                activate
             end tell
             """
         } else {
